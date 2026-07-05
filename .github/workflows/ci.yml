@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    name: Python ${{ matrix.python-version }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        python-version: ["3.10", "3.11", "3.12"]
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install package
+        run: python -m pip install -e .
+      - name: Run unit tests
+        run: python -m unittest discover -s tests
+      - name: List fixtures
+        run: agent-instruction-litmus fixtures
+      - name: Score generated root fixture
+        run: |
+          agent-instruction-litmus init --fixture root-agents-md --output /tmp/litmus-root
+          python - <<'PY'
+          from pathlib import Path
+          Path("/tmp/litmus-root/result.txt").write_text("INSTRUCTION_LITMUS_ROOT_PASS\n", encoding="utf-8")
+          PY
+          agent-instruction-litmus score --fixture root-agents-md --workspace /tmp/litmus-root
