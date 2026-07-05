@@ -97,7 +97,7 @@ At least two ecosystems must be represented before publication.
 
 ## Discoverability Gate
 
-Status: `UNKNOWN`.
+Status: `PASS` for `v0.1.0`.
 
 Pre-publication discoverability work started on 2026-07-05 and is recorded in `DISCOVERABILITY.md`.
 
@@ -109,7 +109,7 @@ Before private or public publication, verify:
 - Limitations explain nondeterminism, unsupported clients, paid-model requirements if any, and why a pass is not a guarantee.
 - Distribution plan names issue threads, client docs, AgentLint/agents-md adjacent users, and package search surfaces without implying adoption.
 
-Remaining blocker: repository metadata and release notes cannot be marked `PASS` until a private repository and release-candidate artifacts exist.
+Future releases must re-check repository metadata, release notes, and limitation wording before publication.
 
 ## Stop Or Reposition Criteria
 

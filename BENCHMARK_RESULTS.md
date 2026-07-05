@@ -48,8 +48,8 @@ The guarded adapters improve this for Codex CLI and opencode by creating the fix
 - Expanded fixture matrix: `PASS` for three unrelated instruction-file behavior cases.
 - Two adapter shapes: `PASS` for Codex CLI and opencode CLI.
 - Reproducible benchmark summary: `PASS` for this three-fixture matrix.
-- Publication readiness: `UNKNOWN`; CI, safety scan, package build, final discoverability artifacts, and private repository publication are not complete.
+- Publication readiness: `PASS` for `v0.1.0`; CI, safety scan, package build/install, discoverability, public visibility, and release creation completed after this benchmark.
 
 ## Follow-Up
 
-Before private publication, run CI/safety/package checks, finish discoverability artifacts, create the private repository only if those gates pass, push, and wait for CI.
+After release, extend the matrix through the roadmap issues for Claude Code, Gemini CLI, and large-file truncation behavior when the relevant validation path is available.

@@ -69,6 +69,6 @@ For `review-loads-agents-md`, the adapter stores opencode stdout/stderr/last-mes
 - Live Codex and opencode runs may consume account quota and can vary across repeated model runs.
 - No fixture reads `.env` files, secrets, or unrelated project files.
 
-## Next Validation
+## Post-Release Work
 
-Before publication, this still needs CI and safety checks, final discoverability review, and fixtures for clear/reset behavior, subagent inheritance, truncation, referenced Markdown rules, and symlinked workspace discovery.
+The first release validates Codex CLI and opencode against three fixtures. Remaining useful work is tracked in GitHub issues for Claude Code `CLAUDE.md`, Gemini CLI `GEMINI.md` clear/reset behavior, and large-file truncation fixtures.

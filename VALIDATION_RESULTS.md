@@ -151,8 +151,8 @@ Gate status:
 - Expanded matrix across three behavior cases: `PASS`.
 - Codex CLI plus opencode CLI validation: `PASS`.
 - Benchmark evidence: `PASS`, citing `BENCHMARK_RESULTS.md`.
-- Publication readiness: `UNKNOWN`; CI, safety/package checks, final discoverability artifacts, and private repository publication remain incomplete.
+- Publication readiness: `PASS` for `v0.1.0`; CI, safety/package checks, discoverability, public visibility, and release creation completed after this matrix.
 
 Follow-up:
 
-Run CI/safety/package checks, finish release metadata, create the private repository if gates remain green, push, and wait for CI before any public publication.
+Post-release work is tracked in roadmap issues for Claude Code, Gemini CLI, and large-file truncation fixtures.

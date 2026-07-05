@@ -2,7 +2,7 @@
 
 Date: 2026-07-05 13:19 Europe/Amsterdam.
 
-Status: `PASS` for private release-candidate readiness.
+Status: `PASS` for public `v0.1.0` release readiness.
 
 ## Target Search Intent
 
@@ -30,7 +30,7 @@ Natural search phrases:
 - Fixtures section: names root `AGENTS.md`, review-mode, and nested-scope behavior.
 - Package metadata: includes `agents-md`, `claude-md`, `gemini-md`, `coding-agent`, `instruction-following`, `conformance`, and `developer-tools`.
 - Limitations: documents nondeterminism, unsupported clients, quota risk, and the narrow meaning of a pass.
-- Private GitHub repository metadata: `itscloud0/agent-instruction-litmus` is private with an accurate description and topics.
+- GitHub repository metadata: `itscloud0/agent-instruction-litmus` is public with an accurate description and topics.
 
 ## Proposed Repository Metadata
 
@@ -66,6 +66,6 @@ Release title:
 
 - README and package metadata: `PASS`.
 - GitHub repository description/topics: `PASS`; verified on the private repository.
-- Release title/notes: `PASS` for the planned release title and `RELEASE_NOTES.md`; no public release exists yet.
+- Release title/notes: `PASS` for `agent-instruction-litmus v0.1.0 - behavior fixtures for coding-agent instruction files` and `RELEASE_NOTES.md`.
 - Distribution plan: `PASS` as a concrete plan without fabricated adoption.
-- Overall discoverability gate: `PASS` for private publication. Public publication still requires final CI, public visibility, and release creation.
+- Overall discoverability gate: `PASS` for public release. Future releases should re-check README wording, package metadata, repository topics, release notes, and roadmap issue claims before publication.
