@@ -6,7 +6,7 @@ import unittest
 from pathlib import Path
 
 from agent_instruction_litmus import cli
-from agent_instruction_litmus.fixtures import NESTED_MARKER, REVIEW_MARKER, ROOT_MARKER
+from agent_instruction_litmus.fixtures import NESTED_MARKER, REVIEW_MARKER, ROOT_MARKER, TRUNCATION_MARKER
 
 
 class CliTests(unittest.TestCase):
@@ -157,6 +157,7 @@ def _write_fake_codex(path: Path) -> Path:
         f"root_marker = {ROOT_MARKER!r}\n"
         f"review_marker = {REVIEW_MARKER!r}\n"
         f"nested_marker = {NESTED_MARKER!r}\n"
+        f"truncation_marker = {TRUNCATION_MARKER!r}\n"
         "args = sys.argv[1:]\n"
         "out = args[args.index('-o') + 1]\n"
         "if 'review' in args:\n"
@@ -165,6 +166,8 @@ def _write_fake_codex(path: Path) -> Path:
         "    workspace = Path(args[args.index('-C') + 1])\n"
         "    if (workspace / 'pkg' / 'result.txt').exists():\n"
         "        (workspace / 'pkg' / 'result.txt').write_text(f'{nested_marker}\\n', encoding='utf-8')\n"
+        "    elif 'Boundary Sentinel Instruction' in (workspace / 'AGENTS.md').read_text(encoding='utf-8'):\n"
+        "        (workspace / 'result.txt').write_text(f'{truncation_marker}\\n', encoding='utf-8')\n"
         "    else:\n"
         "        (workspace / 'result.txt').write_text(f'{root_marker}\\n', encoding='utf-8')\n"
         "    Path(out).write_text('done\\n', encoding='utf-8')\n"
@@ -184,6 +187,7 @@ def _write_fake_opencode(path: Path) -> Path:
         f"root_marker = {ROOT_MARKER!r}\n"
         f"review_marker = {REVIEW_MARKER!r}\n"
         f"nested_marker = {NESTED_MARKER!r}\n"
+        f"truncation_marker = {TRUNCATION_MARKER!r}\n"
         "args = sys.argv[1:]\n"
         "workspace = Path(args[args.index('--dir') + 1])\n"
         "message = args[-1]\n"
@@ -192,6 +196,9 @@ def _write_fake_opencode(path: Path) -> Path:
         "    text = 'Done. Review saved.'\n"
         "elif (workspace / 'pkg' / 'result.txt').exists():\n"
         "    (workspace / 'pkg' / 'result.txt').write_text(f'{nested_marker}\\n', encoding='utf-8')\n"
+        "    text = 'Done.'\n"
+        "elif 'Boundary Sentinel Instruction' in (workspace / 'AGENTS.md').read_text(encoding='utf-8'):\n"
+        "    (workspace / 'result.txt').write_text(f'{truncation_marker}\\n', encoding='utf-8')\n"
         "    text = 'Done.'\n"
         "else:\n"
         "    (workspace / 'result.txt').write_text(f'{root_marker}\\n', encoding='utf-8')\n"

@@ -19,13 +19,17 @@ def score_fixture(name: str, workspace: Path) -> Finding:
         )
 
     content = target.read_text(encoding="utf-8", errors="replace")
-    if fixture.expected_marker in content and fixture.forbidden_marker and fixture.forbidden_marker in content:
+    if fixture.forbidden_marker and fixture.forbidden_marker in content:
+        if fixture.expected_marker in content:
+            message = f"expected marker found, but forbidden marker {fixture.forbidden_marker} is also present"
+        else:
+            message = f"forbidden marker {fixture.forbidden_marker} found and expected marker is absent"
         return Finding(
             status="FAIL",
             fixture=fixture.name,
             expected_path=fixture.expected_path,
             expected_marker=fixture.expected_marker,
-            message=f"expected marker found, but forbidden marker {fixture.forbidden_marker} is also present",
+            message=message,
         )
 
     if fixture.expected_marker in content:

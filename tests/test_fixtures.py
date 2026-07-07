@@ -4,7 +4,15 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from agent_instruction_litmus.fixtures import NESTED_MARKER, NESTED_ROOT_MARKER, ROOT_MARKER, create_fixture, list_fixtures
+from agent_instruction_litmus.fixtures import (
+    NESTED_MARKER,
+    NESTED_ROOT_MARKER,
+    ROOT_MARKER,
+    TRUNCATION_FALLBACK_MARKER,
+    TRUNCATION_MARKER,
+    create_fixture,
+    list_fixtures,
+)
 from agent_instruction_litmus.score import score_fixture
 
 
@@ -14,6 +22,7 @@ class FixtureTests(unittest.TestCase):
         self.assertIn("root-agents-md", names)
         self.assertIn("review-loads-agents-md", names)
         self.assertIn("nested-scope-precedence", names)
+        self.assertIn("large-file-truncation", names)
 
     def test_root_fixture_scores_fail_then_pass(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -60,6 +69,35 @@ class FixtureTests(unittest.TestCase):
 
             result.write_text(f"{NESTED_MARKER}\n", encoding="utf-8")
             passed = score_fixture("nested-scope-precedence", workspace)
+            self.assertEqual(passed.status, "PASS")
+
+    def test_large_file_truncation_fixture_places_late_sentinel(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            create_fixture("large-file-truncation", workspace)
+
+            instructions = (workspace / "AGENTS.md").read_text(encoding="utf-8")
+            self.assertGreater(len(instructions), 32_000)
+            self.assertLess(instructions.index(TRUNCATION_FALLBACK_MARKER), instructions.index(TRUNCATION_MARKER))
+            self.assertGreater(instructions.index(TRUNCATION_MARKER), 32_000)
+
+    def test_large_file_truncation_scores_fallback_separately(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            create_fixture("large-file-truncation", workspace)
+            result = workspace / "result.txt"
+
+            missing_sentinel = score_fixture("large-file-truncation", workspace)
+            self.assertEqual(missing_sentinel.status, "FAIL")
+            self.assertIn("artifact is empty", missing_sentinel.message)
+
+            result.write_text(f"{TRUNCATION_FALLBACK_MARKER}\n", encoding="utf-8")
+            fallback = score_fixture("large-file-truncation", workspace)
+            self.assertEqual(fallback.status, "FAIL")
+            self.assertIn("forbidden marker", fallback.message)
+
+            result.write_text(f"{TRUNCATION_MARKER}\n", encoding="utf-8")
+            passed = score_fixture("large-file-truncation", workspace)
             self.assertEqual(passed.status, "PASS")
 
 

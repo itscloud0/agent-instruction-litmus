@@ -53,3 +53,28 @@ The guarded adapters improve this for Codex CLI and opencode by creating the fix
 ## Follow-Up
 
 After release, extend the matrix through the roadmap issues for Claude Code, Gemini CLI, and large-file truncation behavior when the relevant validation path is available.
+
+## 2026-07-07 Local Truncation Fixture Slice
+
+This maintainer run added the local `large-file-truncation` fixture:
+
+- `large-file-truncation`: a long `AGENTS.md` contains an early fallback marker and a late boundary sentinel marker. A pass means the agent wrote the late sentinel to `result.txt`; a forbidden fallback means the late sentinel was not observed or not followed.
+
+Local verification:
+
+- `PYTHONPATH=src python3.12 -m unittest discover -s tests` passed.
+- `PYTHONPATH=src python3.12 -m compileall -q src tests` passed.
+- `PYTHONPATH=src python3.12 -m agent_instruction_litmus fixtures` listed all four fixtures.
+- Manual scoring smokes distinguished empty artifact, forbidden fallback marker, and expected sentinel marker.
+
+Live adapter matrix:
+
+| Adapter | Fixture | Result | Evidence |
+|---|---|---|---|
+| Codex CLI | `large-file-truncation` | `PENDING` | Not run in this automation run because `--allow-live` can consume provider quota. |
+| opencode CLI | `large-file-truncation` | `PENDING` | Not run in this automation run because `--allow-live` can consume provider quota. |
+
+Gate status:
+
+- Local truncation fixture generation/scoring: `PASS`.
+- Live Codex/opencode truncation behavior: `UNKNOWN` until an explicit live benchmark run is acceptable.

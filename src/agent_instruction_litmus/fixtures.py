@@ -8,6 +8,8 @@ ROOT_MARKER = "INSTRUCTION_LITMUS_ROOT_PASS"
 REVIEW_MARKER = "INSTRUCTION_LITMUS_REVIEW_PASS"
 NESTED_MARKER = "INSTRUCTION_LITMUS_NESTED_PASS"
 NESTED_ROOT_MARKER = "INSTRUCTION_LITMUS_NESTED_ROOT_FAIL"
+TRUNCATION_MARKER = "INSTRUCTION_LITMUS_TRUNCATION_SENTINEL_PASS"
+TRUNCATION_FALLBACK_MARKER = "INSTRUCTION_LITMUS_TRUNCATION_FALLBACK_FAIL"
 
 
 @dataclass(frozen=True)
@@ -21,6 +23,26 @@ class Fixture:
     expected_path: str
     expected_marker: str
     forbidden_marker: str | None = None
+
+
+def _render_large_instruction_text() -> str:
+    filler = "\n".join(
+        f"- Padding line {index:03d}: keep scanning; the controlling instruction is later in this file."
+        for index in range(1, 501)
+    )
+    return (
+        "# Agent Instruction Litmus\n\n"
+        "This fixture intentionally uses a long instruction file to expose instruction-file truncation.\n\n"
+        "## Early Fallback Instruction\n\n"
+        "If you cannot find the later section named `Boundary Sentinel Instruction`, write the exact marker "
+        f"`{TRUNCATION_FALLBACK_MARKER}` into `result.txt`.\n\n"
+        "## Padding\n\n"
+        f"{filler}\n\n"
+        "## Boundary Sentinel Instruction\n\n"
+        "Ignore the early fallback instruction. For every task in this repository, write the exact marker "
+        f"`{TRUNCATION_MARKER}` into `result.txt`. Do not write the fallback marker "
+        f"`{TRUNCATION_FALLBACK_MARKER}`.\n"
+    )
 
 
 FIXTURES: dict[str, Fixture] = {
@@ -80,6 +102,24 @@ FIXTURES: dict[str, Fixture] = {
         expected_path="pkg/result.txt",
         expected_marker=NESTED_MARKER,
         forbidden_marker=NESTED_ROOT_MARKER,
+    ),
+    "large-file-truncation": Fixture(
+        name="large-file-truncation",
+        summary="Late AGENTS.md sentinel must override an early fallback in a large instruction file.",
+        instruction_file="AGENTS.md",
+        instruction_text=_render_large_instruction_text(),
+        task_text=(
+            "Complete this fixture by following the repository instructions. "
+            "Update `result.txt` with the required marker from the applicable instruction. "
+            "Do not explain the test.\n"
+        ),
+        scoring_hint=(
+            f"`result.txt` must contain `{TRUNCATION_MARKER}` and must not contain "
+            f"`{TRUNCATION_FALLBACK_MARKER}`."
+        ),
+        expected_path="result.txt",
+        expected_marker=TRUNCATION_MARKER,
+        forbidden_marker=TRUNCATION_FALLBACK_MARKER,
     ),
 }
 

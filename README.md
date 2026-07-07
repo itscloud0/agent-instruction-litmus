@@ -60,15 +60,17 @@ For `review-loads-agents-md`, the adapter stores opencode stdout/stderr/last-mes
 - `root-agents-md`: verifies that a root `AGENTS.md` rule is followed in a normal task.
 - `review-loads-agents-md`: verifies that a review-mode response includes a marker required by `AGENTS.md`.
 - `nested-scope-precedence`: verifies that a nested `AGENTS.md` rule overrides a root fallback instruction for a scoped file.
+- `large-file-truncation`: verifies that a late sentinel in a large `AGENTS.md` overrides an early fallback marker.
 
 ## Limits
 
 - A pass only proves that one fixture passed in one run.
 - A fail can mean the instruction file was not loaded, was truncated, was overridden, or was ignored by the model. The report keeps those separate when the artifact allows it.
+- The large-file fixture is boundary evidence only: it can expose a missed late sentinel or an early fallback, but a pass is still one-run evidence, not a guarantee for every larger instruction file.
 - Automated Gemini, Claude, Roo, and Copilot adapters are not included yet.
 - Live Codex and opencode runs may consume account quota and can vary across repeated model runs.
 - No fixture reads `.env` files, secrets, or unrelated project files.
 
 ## Post-Release Work
 
-The first release validates Codex CLI and opencode against three fixtures. Remaining useful work is tracked in GitHub issues for Claude Code `CLAUDE.md`, Gemini CLI `GEMINI.md` clear/reset behavior, and large-file truncation fixtures.
+The first release validates Codex CLI and opencode against three fixtures. Remaining useful work is tracked in GitHub issues for Claude Code `CLAUDE.md`, Gemini CLI `GEMINI.md` clear/reset behavior, and live adapter benchmarking for large-file truncation behavior.
