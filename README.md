@@ -73,4 +73,4 @@ For `review-loads-agents-md`, the adapter stores opencode stdout/stderr/last-mes
 
 ## Post-Release Work
 
-The first release validates Codex CLI and opencode against three fixtures. Remaining useful work is tracked in GitHub issues for Claude Code `CLAUDE.md`, Gemini CLI `GEMINI.md` clear/reset behavior, and live adapter benchmarking for large-file truncation behavior.
+The `v0.2.0` release validates Codex CLI and opencode against the four local fixtures, including one fresh large-file truncation run per adapter. Remaining useful work is tracked in GitHub issues for Claude Code `CLAUDE.md` and Gemini CLI `GEMINI.md` clear/reset behavior.

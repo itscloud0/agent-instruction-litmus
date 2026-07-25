@@ -71,10 +71,11 @@ Live adapter matrix:
 
 | Adapter | Fixture | Result | Evidence |
 |---|---|---|---|
-| Codex CLI | `large-file-truncation` | `PENDING` | Not run in this automation run because `--allow-live` can consume provider quota. |
-| opencode CLI | `large-file-truncation` | `PENDING` | Not run in this automation run because `--allow-live` can consume provider quota. |
+| Codex CLI 0.144.5 | `large-file-truncation` | `PASS` | Fresh disposable run returned code 0 and `result.txt` contained `INSTRUCTION_LITMUS_TRUNCATION_SENTINEL_PASS`; root: `/tmp/agent-instruction-litmus-truncation-20260725-codex-live`. |
+| opencode CLI 1.16.2 | `large-file-truncation` | `PASS` | Fresh disposable run returned code 0 and `result.txt` contained `INSTRUCTION_LITMUS_TRUNCATION_SENTINEL_PASS`; root: `/tmp/agent-instruction-litmus-truncation-20260725-opencode-live`. |
 
 Gate status:
 
 - Local truncation fixture generation/scoring: `PASS`.
-- Live Codex/opencode truncation behavior: `UNKNOWN` until an explicit live benchmark run is acceptable.
+- Scorer distinctions for missing file, empty artifact, missing sentinel, and forbidden fallback: `PASS` with regression coverage.
+- Live Codex/opencode truncation behavior: `PASS` for one fresh run per adapter; this is boundary evidence, not a guarantee for every larger instruction file or future client version.

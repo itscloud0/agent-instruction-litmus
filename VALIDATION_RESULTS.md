@@ -156,3 +156,25 @@ Gate status:
 Follow-up:
 
 Post-release work is tracked in roadmap issues for Claude Code, Gemini CLI, and large-file truncation fixtures.
+
+## 2026-07-25 - Large-file Truncation Matrix
+
+Lifecycle mode: `BENCHMARK`.
+
+Local fixture/scorer validation:
+
+- `large-file-truncation` generates a disposable `AGENTS.md` longer than 32,000 characters with an early fallback and a late sentinel.
+- The scorer now has regression coverage for a missing file (`MISSING`), an empty artifact (`FAIL`), an existing artifact without the sentinel (`FAIL`), a forbidden fallback (`FAIL`), and the expected sentinel (`PASS`).
+- Python 3.12.13 tests, compileall, CLI fixture listing, and both live adapter runs completed from the owned checkout.
+
+Live results:
+
+| Adapter | Version | Result | Evidence |
+|---|---:|---|---|
+| Codex CLI | 0.144.5 | `PASS` | One fresh disposable run returned code 0 and wrote `INSTRUCTION_LITMUS_TRUNCATION_SENTINEL_PASS` to `result.txt`. Captures: `/tmp/agent-instruction-litmus-truncation-20260725-codex-live`. |
+| opencode CLI | 1.16.2 | `PASS` | One fresh disposable run returned code 0 and wrote `INSTRUCTION_LITMUS_TRUNCATION_SENTINEL_PASS` to `result.txt`. Captures: `/tmp/agent-instruction-litmus-truncation-20260725-opencode-live`. |
+
+Interpretation:
+
+- The late sentinel was observed by both supported adapters in one fresh run each.
+- This is boundary evidence for the tested client versions, not a general guarantee about larger instruction files, other clients, models, or future versions.

@@ -87,9 +87,19 @@ class FixtureTests(unittest.TestCase):
             create_fixture("large-file-truncation", workspace)
             result = workspace / "result.txt"
 
+            missing_artifact = score_fixture("large-file-truncation", workspace)
+            self.assertEqual(missing_artifact.status, "FAIL")
+            self.assertIn("artifact is empty", missing_artifact.message)
+
+            result.unlink()
+            missing_file = score_fixture("large-file-truncation", workspace)
+            self.assertEqual(missing_file.status, "MISSING")
+            self.assertIn("does not exist", missing_file.message)
+
+            result.write_text("INSTRUCTION_LITMUS_UNRELATED_MARKER\n", encoding="utf-8")
             missing_sentinel = score_fixture("large-file-truncation", workspace)
             self.assertEqual(missing_sentinel.status, "FAIL")
-            self.assertIn("artifact is empty", missing_sentinel.message)
+            self.assertIn("artifact exists but expected marker is absent", missing_sentinel.message)
 
             result.write_text(f"{TRUNCATION_FALLBACK_MARKER}\n", encoding="utf-8")
             fallback = score_fixture("large-file-truncation", workspace)
