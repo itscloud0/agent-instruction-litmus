@@ -7,6 +7,8 @@ from pathlib import Path
 from agent_instruction_litmus.fixtures import (
     NESTED_MARKER,
     NESTED_ROOT_MARKER,
+    GEMINI_RELOAD_MARKER,
+    GEMINI_RELOAD_FALLBACK_MARKER,
     ROOT_MARKER,
     TRUNCATION_FALLBACK_MARKER,
     TRUNCATION_MARKER,
@@ -23,6 +25,7 @@ class FixtureTests(unittest.TestCase):
         self.assertIn("review-loads-agents-md", names)
         self.assertIn("nested-scope-precedence", names)
         self.assertIn("large-file-truncation", names)
+        self.assertIn("gemini-memory-reload", names)
 
     def test_root_fixture_scores_fail_then_pass(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -108,6 +111,21 @@ class FixtureTests(unittest.TestCase):
 
             result.write_text(f"{TRUNCATION_MARKER}\n", encoding="utf-8")
             passed = score_fixture("large-file-truncation", workspace)
+            self.assertEqual(passed.status, "PASS")
+
+    def test_gemini_memory_reload_fixture_rejects_fallback(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            create_fixture("gemini-memory-reload", workspace)
+            result = workspace / "result.txt"
+
+            result.write_text(f"{GEMINI_RELOAD_FALLBACK_MARKER}\n", encoding="utf-8")
+            failed = score_fixture("gemini-memory-reload", workspace)
+            self.assertEqual(failed.status, "FAIL")
+            self.assertIn("forbidden marker", failed.message)
+
+            result.write_text(f"{GEMINI_RELOAD_MARKER}\n", encoding="utf-8")
+            passed = score_fixture("gemini-memory-reload", workspace)
             self.assertEqual(passed.status, "PASS")
 
 

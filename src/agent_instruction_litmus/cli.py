@@ -6,7 +6,7 @@ import shlex
 import sys
 from pathlib import Path
 
-from .adapters import run_codex_cli, run_opencode_cli
+from .adapters import run_codex_cli, run_gemini_cli, run_opencode_cli
 from .fixtures import create_fixture, get_fixture, list_fixtures
 from .report import render
 from .score import score_fixture
@@ -38,7 +38,7 @@ def build_parser() -> argparse.ArgumentParser:
     run_parser.add_argument(
         "--adapter",
         required=True,
-        choices=("manual", "codex-cli", "opencode-cli"),
+        choices=("manual", "codex-cli", "opencode-cli", "gemini-cli"),
         help="Adapter name.",
     )
     run_parser.add_argument("--fixture", required=True, help="Fixture name.")
@@ -47,6 +47,7 @@ def build_parser() -> argparse.ArgumentParser:
     run_parser.add_argument("--allow-live", action="store_true", help="Allow the adapter to make live agent/model calls.")
     run_parser.add_argument("--codex-bin", default="codex", help="Codex executable for the codex-cli adapter.")
     run_parser.add_argument("--opencode-bin", default="opencode", help="opencode executable for the opencode-cli adapter.")
+    run_parser.add_argument("--gemini-bin", default="gemini", help="Gemini executable for the gemini-cli adapter.")
     run_parser.add_argument(
         "--timeout-seconds",
         default=600,
@@ -108,6 +109,18 @@ def main(argv: list[str] | None = None) -> int:
                 )
                 print_adapter_result(result)
                 return 0 if result.returncode == 0 and result.finding.status == "PASS" else 1
+            if args.adapter == "gemini-cli":
+                if not args.allow_live:
+                    print_gemini_instructions(fixture.name, args.output)
+                    return 2
+                result = run_gemini_cli(
+                    fixture.name,
+                    args.output,
+                    gemini_bin=args.gemini_bin,
+                    timeout_seconds=args.timeout_seconds,
+                )
+                print_adapter_result(result)
+                return 0 if result.returncode == 0 and result.finding.status == "PASS" else 1
 
     except Exception as exc:
         parser.exit(2, f"error: {exc}\n")
@@ -152,6 +165,19 @@ def print_opencode_instructions(fixture_name: str, output: Path) -> None:
         print(f"opencode executable: {opencode_path}")
     print("Automated opencode execution requires explicit opt-in because it may consume provider quota.")
     print("Re-run with --allow-live to execute opencode, store captures under .litmus/, and score the fixture.")
+
+
+def print_gemini_instructions(fixture_name: str, output: Path) -> None:
+    fixture = get_fixture(fixture_name)
+    gemini_path = shutil.which("gemini")
+    print(f"created {fixture.name} at {output}")
+    if gemini_path is None:
+        print("Gemini executable was not found on PATH.")
+    else:
+        print(f"Gemini executable: {gemini_path}")
+    print("Automated Gemini execution requires explicit opt-in because it may consume model-provider quota.")
+    print("A blocked account or unsupported location is reported as BLOCKED, not as an instruction failure.")
+    print("Re-run with --allow-live to execute Gemini, store captures under .litmus/, and score the fixture.")
 
 
 def print_adapter_result(result) -> None:

@@ -6,7 +6,13 @@ import unittest
 from pathlib import Path
 
 from agent_instruction_litmus import cli
-from agent_instruction_litmus.fixtures import NESTED_MARKER, REVIEW_MARKER, ROOT_MARKER, TRUNCATION_MARKER
+from agent_instruction_litmus.fixtures import (
+    GEMINI_RELOAD_MARKER,
+    NESTED_MARKER,
+    REVIEW_MARKER,
+    ROOT_MARKER,
+    TRUNCATION_MARKER,
+)
 
 
 class CliTests(unittest.TestCase):
@@ -92,6 +98,66 @@ class CliTests(unittest.TestCase):
                     ["run", "--adapter", "opencode-cli", "--fixture", "root-agents-md", "--output", str(workspace)]
                 ),
                 2,
+            )
+
+    def test_gemini_adapter_requires_explicit_live_opt_in(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp)
+            self.assertEqual(
+                cli.main(
+                    ["run", "--adapter", "gemini-cli", "--fixture", "gemini-memory-reload", "--output", str(workspace)]
+                ),
+                2,
+            )
+
+    def test_gemini_adapter_runs_with_explicit_live_opt_in(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp) / "fixture"
+            fake_gemini = _write_fake_gemini(Path(tmp) / "fake-gemini")
+
+            self.assertEqual(
+                cli.main(
+                    [
+                        "run",
+                        "--adapter",
+                        "gemini-cli",
+                        "--allow-live",
+                        "--gemini-bin",
+                        str(fake_gemini),
+                        "--fixture",
+                        "gemini-memory-reload",
+                        "--output",
+                        str(workspace),
+                    ]
+                ),
+                0,
+            )
+
+            self.assertIn(GEMINI_RELOAD_MARKER, (workspace / "result.txt").read_text(encoding="utf-8"))
+            self.assertTrue((workspace / ".litmus" / "gemini-stdout.json").exists())
+            self.assertTrue((workspace / ".litmus" / "gemini-stderr.txt").exists())
+
+    def test_gemini_adapter_reports_account_block_separately(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            workspace = Path(tmp) / "fixture"
+            fake_gemini = _write_blocked_gemini(Path(tmp) / "blocked-gemini")
+
+            self.assertEqual(
+                cli.main(
+                    [
+                        "run",
+                        "--adapter",
+                        "gemini-cli",
+                        "--allow-live",
+                        "--gemini-bin",
+                        str(fake_gemini),
+                        "--fixture",
+                        "gemini-memory-reload",
+                        "--output",
+                        str(workspace),
+                    ]
+                ),
+                1,
             )
 
     def test_opencode_adapter_runs_with_explicit_live_opt_in(self) -> None:
@@ -204,6 +270,32 @@ def _write_fake_opencode(path: Path) -> Path:
         "    (workspace / 'result.txt').write_text(f'{root_marker}\\n', encoding='utf-8')\n"
         "    text = 'Done.'\n"
         "print(json.dumps({'type': 'text', 'part': {'type': 'text', 'text': text}}))\n",
+        encoding="utf-8",
+    )
+    os.chmod(path, 0o755)
+    return path
+
+
+def _write_fake_gemini(path: Path) -> Path:
+    path.write_text(
+        "#!/usr/bin/env python3\n"
+        "import json\n"
+        "from pathlib import Path\n"
+        f"marker = {GEMINI_RELOAD_MARKER!r}\n"
+        "(Path.cwd() / 'result.txt').write_text(f'{marker}\\n', encoding='utf-8')\n"
+        "print(json.dumps({'response': 'Done.'}))\n",
+        encoding="utf-8",
+    )
+    os.chmod(path, 0o755)
+    return path
+
+
+def _write_blocked_gemini(path: Path) -> Path:
+    path.write_text(
+        "#!/usr/bin/env python3\n"
+        "import sys\n"
+        "print('IneligibleTierError: UNSUPPORTED_LOCATION', file=sys.stderr)\n"
+        "raise SystemExit(1)\n",
         encoding="utf-8",
     )
     os.chmod(path, 0o755)

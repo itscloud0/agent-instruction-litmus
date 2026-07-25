@@ -156,6 +156,66 @@ def run_opencode_cli(
     )
 
 
+def run_gemini_cli(
+    fixture_name: str,
+    workspace: Path,
+    *,
+    gemini_bin: str = "gemini",
+    timeout_seconds: int = 600,
+) -> AdapterRun:
+    fixture = get_fixture(fixture_name)
+    workspace = workspace.resolve()
+    gemini_path = shutil.which(gemini_bin) if os.sep not in gemini_bin else gemini_bin
+    if gemini_path is None:
+        raise FileNotFoundError(f"Gemini executable not found: {gemini_bin}")
+
+    litmus_dir = workspace / ".litmus"
+    litmus_dir.mkdir(parents=True, exist_ok=True)
+    stdout_path = litmus_dir / "gemini-stdout.json"
+    stderr_path = litmus_dir / "gemini-stderr.txt"
+    last_message_path = litmus_dir / "gemini-last-message.txt"
+    command = [
+        gemini_path,
+        "--skip-trust",
+        "--approval-mode",
+        "auto_edit",
+        "--output-format",
+        "json",
+        "--prompt",
+        (workspace / "TASK.md").read_text(encoding="utf-8"),
+    ]
+
+    completed = _run(command, cwd=workspace, stdin_text=None, timeout_seconds=timeout_seconds)
+    stdout_path.write_text(completed.stdout, encoding="utf-8")
+    stderr_path.write_text(completed.stderr, encoding="utf-8")
+    response_text = _extract_gemini_text(completed.stdout)
+    last_message_path.write_text(response_text, encoding="utf-8")
+
+    block_reason = _gemini_block_reason(completed.stdout + "\n" + completed.stderr)
+    if block_reason:
+        finding = Finding(
+            status="BLOCKED",
+            fixture=fixture.name,
+            expected_path=fixture.expected_path,
+            expected_marker=fixture.expected_marker,
+            message=f"Gemini CLI live validation was blocked before instruction scoring: {block_reason}",
+        )
+    else:
+        finding = score_fixture(fixture.name, workspace)
+
+    return AdapterRun(
+        adapter="gemini-cli",
+        fixture=fixture.name,
+        command=command,
+        returncode=completed.returncode,
+        finding=finding,
+        stdout_path=stdout_path,
+        stderr_path=stderr_path,
+        last_message_path=last_message_path,
+        timed_out=completed.timed_out,
+    )
+
+
 @dataclass(frozen=True)
 class _Completed:
     returncode: int
@@ -215,6 +275,31 @@ def _extract_opencode_text(stdout: str) -> str:
     if messages:
         return "\n".join(messages).strip() + "\n"
     return stdout
+
+
+def _extract_gemini_text(stdout: str) -> str:
+    try:
+        payload = json.loads(stdout)
+    except json.JSONDecodeError:
+        return stdout
+
+    if isinstance(payload, dict):
+        for key in ("response", "text", "message"):
+            value = payload.get(key)
+            if isinstance(value, str):
+                return value
+    return stdout
+
+
+def _gemini_block_reason(output: str) -> str | None:
+    normalized = output.casefold()
+    if "ineligibletiererror" in normalized or "unsupported_location" in normalized:
+        return "account tier or location is unsupported (IneligibleTierError/UNSUPPORTED_LOCATION)"
+    if "no code assist tier" in normalized or "not eligible" in normalized:
+        return "the authenticated account is not eligible for Gemini Code Assist"
+    if "401 unauthorized" in normalized or "invalid authentication" in normalized:
+        return "Gemini authentication was rejected (HTTP 401)"
+    return None
 
 
 def _prepare_review_workspace(workspace: Path) -> None:

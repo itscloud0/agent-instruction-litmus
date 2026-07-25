@@ -10,6 +10,8 @@ NESTED_MARKER = "INSTRUCTION_LITMUS_NESTED_PASS"
 NESTED_ROOT_MARKER = "INSTRUCTION_LITMUS_NESTED_ROOT_FAIL"
 TRUNCATION_MARKER = "INSTRUCTION_LITMUS_TRUNCATION_SENTINEL_PASS"
 TRUNCATION_FALLBACK_MARKER = "INSTRUCTION_LITMUS_TRUNCATION_FALLBACK_FAIL"
+GEMINI_RELOAD_MARKER = "INSTRUCTION_LITMUS_GEMINI_RELOAD_PASS"
+GEMINI_RELOAD_FALLBACK_MARKER = "INSTRUCTION_LITMUS_GEMINI_RELOAD_FALLBACK_FAIL"
 
 
 @dataclass(frozen=True)
@@ -121,6 +123,29 @@ FIXTURES: dict[str, Fixture] = {
         expected_marker=TRUNCATION_MARKER,
         forbidden_marker=TRUNCATION_FALLBACK_MARKER,
     ),
+    "gemini-memory-reload": Fixture(
+        name="gemini-memory-reload",
+        summary="A fresh or reloaded Gemini CLI session must apply the root GEMINI.md instruction.",
+        instruction_file="GEMINI.md",
+        instruction_text=(
+            "# Gemini CLI Instruction Litmus\n\n"
+            "This fixture represents a fresh-session or memory-reload boundary. Follow this instruction "
+            "after that boundary: write the exact marker "
+            f"`{GEMINI_RELOAD_MARKER}` into `result.txt`. Do not write the fallback marker "
+            f"`{GEMINI_RELOAD_FALLBACK_MARKER}`.\n"
+        ),
+        task_text=(
+            "Complete this fixture from a fresh Gemini CLI session or after reloading project memory. "
+            "Follow `GEMINI.md` and write the required exact marker to `result.txt`. Do not explain the test.\n"
+        ),
+        scoring_hint=(
+            f"`result.txt` must contain `{GEMINI_RELOAD_MARKER}` and must not contain "
+            f"`{GEMINI_RELOAD_FALLBACK_MARKER}`.\n"
+        ),
+        expected_path="result.txt",
+        expected_marker=GEMINI_RELOAD_MARKER,
+        forbidden_marker=GEMINI_RELOAD_FALLBACK_MARKER,
+    ),
 }
 
 
@@ -144,7 +169,10 @@ def create_fixture(name: str, output: Path, *, force: bool = False) -> Fixture:
     output.mkdir(parents=True, exist_ok=True)
     (output / fixture.instruction_file).write_text(fixture.instruction_text, encoding="utf-8")
     (output / "TASK.md").write_text(fixture.task_text, encoding="utf-8")
-    (output / ".gitignore").write_text("__pycache__/\n.codex/\n.litmus/\ncodex-*.jsonl\ncodex-*.txt\n", encoding="utf-8")
+    (output / ".gitignore").write_text(
+        "__pycache__/\n.codex/\n.litmus/\ncodex-*.jsonl\ncodex-*.txt\ngemini-*.json\ngemini-*.txt\n",
+        encoding="utf-8",
+    )
 
     if fixture.name == "review-loads-agents-md":
         src = output / "src"

@@ -79,3 +79,16 @@ Gate status:
 - Local truncation fixture generation/scoring: `PASS`.
 - Scorer distinctions for missing file, empty artifact, missing sentinel, and forbidden fallback: `PASS` with regression coverage.
 - Live Codex/opencode truncation behavior: `PASS` for one fresh run per adapter; this is boundary evidence, not a guarantee for every larger instruction file or future client version.
+
+## 2026-07-25 Guarded Gemini Adapter Slice
+
+This maintainer run added the local Gemini memory-reload fixture and guarded adapter:
+
+- `gemini-memory-reload`: a fresh-session/reset-boundary fixture using root `GEMINI.md` and an exact output marker.
+- Gemini CLI adapter: explicit `--allow-live` opt-in, disposable workspace, `.litmus/` captures, and `BLOCKED` classification for account/location/auth failures before scoring.
+
+Local verification:
+
+- Python 3.12.13 test suite passed with 18 tests.
+- `compileall`, fixture listing, fake-adapter `PASS`, blocked-adapter `BLOCKED`, and `git diff --check` passed.
+- Gemini CLI 0.39.1 is installed locally. Live model validation remains unavailable under issue #2's recorded `IneligibleTierError` / `UNSUPPORTED_LOCATION` eligibility block; no live Gemini `PASS` is claimed.

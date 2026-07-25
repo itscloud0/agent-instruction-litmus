@@ -1,3 +1,15 @@
+# Unreleased
+
+## Added
+
+- `gemini-memory-reload`, a disposable `GEMINI.md` startup/reset-boundary fixture.
+- A guarded Gemini CLI adapter with ignored `.litmus/` captures and explicit `--allow-live` opt-in.
+- `BLOCKED` adapter reports for account-tier, unsupported-location, and authentication failures that happen before instruction scoring.
+
+## Limits
+
+- Gemini CLI 0.39.1 is installed locally, but live validation remains blocked by the account/location eligibility recorded in issue #2. No Gemini instruction-following support claim is made until a live `PASS` is available.
+
 # agent-instruction-litmus v0.2.0
 
 Second release adds the large-file truncation fixture and publishes its first two-client benchmark.
