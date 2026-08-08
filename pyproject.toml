@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "agent-instruction-litmus"
-version = "0.2.0"
+version = "0.2.1"
 description = "Behavior fixtures for coding-agent instruction files such as AGENTS.md, CLAUDE.md, and GEMINI.md."
 readme = "README.md"
 requires-python = ">=3.10"

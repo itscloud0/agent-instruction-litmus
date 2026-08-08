@@ -1,4 +1,4 @@
-# Unreleased
+# agent-instruction-litmus v0.2.1
 
 ## Added
 
@@ -9,6 +9,8 @@
 ## Limits
 
 - Gemini CLI 0.39.1 is installed locally, but live validation remains blocked by the account/location eligibility recorded in issue #2. No Gemini instruction-following support claim is made until a live `PASS` is available.
+
+# Unreleased
 
 # agent-instruction-litmus v0.2.0
 
