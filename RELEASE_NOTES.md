@@ -1,3 +1,9 @@
+# agent-instruction-litmus v0.2.2
+
+## Fixed
+
+- Align the runtime `__version__` with the published package metadata so installed clients can report the actual release version.
+
 # agent-instruction-litmus v0.2.1
 
 ## Added
