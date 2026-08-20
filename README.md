@@ -6,6 +6,20 @@ The first build is intentionally small. It creates disposable fixture repositori
 
 ## Quickstart
 
+Install the published `v0.2.2` release without cloning the repository:
+
+```bash
+python -m pip install "git+https://github.com/itscloud0/agent-instruction-litmus.git@v0.2.2"
+agent-instruction-litmus fixtures
+```
+
+For a one-off run without installing a persistent command, use `uvx`:
+
+```bash
+uvx --from "git+https://github.com/itscloud0/agent-instruction-litmus.git@v0.2.2" \
+  agent-instruction-litmus fixtures
+```
+
 List fixtures:
 
 ```bash
@@ -87,4 +101,4 @@ The Gemini adapter starts a fresh process in the fixture workspace, which exerci
 
 ## Post-Release Work
 
-The `v0.2.0` release validates Codex CLI and opencode against the four local fixtures, including one fresh large-file truncation run per adapter. The guarded Gemini adapter and local memory-reload fixture are now present, but the Gemini live gate remains pending the eligible account/location recorded in issue #2. Remaining useful work is tracked in the GitHub issue for Claude Code `CLAUDE.md` behavior.
+The `v0.2.2` release validates Codex CLI and opencode against the four non-Gemini local fixtures, including one fresh large-file truncation run per adapter. The guarded Gemini adapter and local memory-reload fixture are now present, but the Gemini live gate remains pending the eligible account/location recorded in issue #2. Remaining useful work is tracked in the GitHub issue for Claude Code `CLAUDE.md` behavior.

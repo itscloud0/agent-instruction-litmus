@@ -33,3 +33,23 @@ jobs:
           Path("/tmp/litmus-root/result.txt").write_text("INSTRUCTION_LITMUS_ROOT_PASS\n", encoding="utf-8")
           PY
           agent-instruction-litmus score --fixture root-agents-md --workspace /tmp/litmus-root
+
+  public-install:
+    name: Public v0.2.2 install smoke
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install immutable public release
+        run: python -m pip install "git+https://github.com/itscloud0/agent-instruction-litmus.git@27e27dd3c5f7b5666c46adcfc55ea92ddc7543f5"
+      - name: Verify installed release and fixtures
+        run: |
+          python - <<'PY'
+          from agent_instruction_litmus import __version__
+
+          assert __version__ == "0.2.2"
+          PY
+          agent-instruction-litmus fixtures | tee /tmp/fixtures.txt
+          grep -q $'^root-agents-md\t' /tmp/fixtures.txt
+          grep -q $'^gemini-memory-reload\t' /tmp/fixtures.txt
