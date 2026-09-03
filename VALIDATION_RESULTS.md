@@ -178,3 +178,26 @@ Interpretation:
 
 - The late sentinel was observed by both supported adapters in one fresh run each.
 - This is boundary evidence for the tested client versions, not a general guarantee about larger instruction files, other clients, models, or future versions.
+
+## 2026-09-03 - Immutable CI Action Pins
+
+Lifecycle mode: `MAINTAIN`.
+
+Workflow hardening:
+
+- Pinned `actions/checkout` v4 to commit `11d5960a326750d5838078e36cf38b85af677262`.
+- Pinned all three `actions/setup-python` v5 uses to commit `a26af69be951a213d495a4c3e4e4022e16d87065`.
+- Verified both full commit SHAs against the corresponding official tag refs with `git ls-remote` before editing.
+- Added `tests/test_workflow.py`, which fails if the workflow action refs drift from these reviewed 40-hex commit pins.
+
+Verification:
+
+- Python 3.14.6: `PYTHONPATH=src python3 -m unittest discover -s tests -v` — 20 tests passed.
+- `PYTHONPATH=src python3 -m compileall -q src tests` — passed.
+- Local `action-pin-check` audit of `.github/workflows` — 3 actions, 0 findings.
+- Ruby YAML parse, `git diff --check`, and scoped credential scan — passed.
+
+Interpretation:
+
+- CI now resolves the reviewed external action commits instead of mutable version tags, and the regression test protects the dependency boundary against future drift.
+- This hardening changes workflow dependency resolution only; it does not add new client, model, host, benchmark, or adoption evidence.
