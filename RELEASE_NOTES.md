@@ -18,6 +18,9 @@
 
 # Unreleased
 
+- Lead the README quickstart and CI install smoke with the published `v0.2.2`
+  wheel and sdist, while retaining the exact Git tag as a fallback.
+
 # agent-instruction-litmus v0.2.0
 
 Second release adds the large-file truncation fixture and publishes its first two-client benchmark.

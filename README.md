@@ -6,18 +6,31 @@ The first build is intentionally small. It creates disposable fixture repositori
 
 ## Quickstart
 
-Install the published `v0.2.2` release without cloning the repository:
+Install the published `v0.2.2` wheel without cloning the repository:
 
 ```bash
-python -m pip install "git+https://github.com/itscloud0/agent-instruction-litmus.git@v0.2.2"
+python -m pip install "https://github.com/itscloud0/agent-instruction-litmus/releases/download/v0.2.2/agent_instruction_litmus-0.2.2-py3-none-any.whl"
 agent-instruction-litmus fixtures
 ```
 
-For a one-off run without installing a persistent command, use `uvx`:
+For a source-distribution install, use the matching public release artifact:
 
 ```bash
-uvx --from "git+https://github.com/itscloud0/agent-instruction-litmus.git@v0.2.2" \
+python -m pip install "https://github.com/itscloud0/agent-instruction-litmus/releases/download/v0.2.2/agent_instruction_litmus-0.2.2.tar.gz"
+```
+
+For a one-off run without installing a persistent command, use the same wheel with `uvx`:
+
+```bash
+uvx --from "https://github.com/itscloud0/agent-instruction-litmus/releases/download/v0.2.2/agent_instruction_litmus-0.2.2-py3-none-any.whl" \
   agent-instruction-litmus fixtures
+```
+
+If the release artifacts are unavailable, install the exact public `v0.2.2` tag
+from GitHub:
+
+```bash
+python -m pip install "git+https://github.com/itscloud0/agent-instruction-litmus.git@v0.2.2"
 ```
 
 List fixtures:

@@ -35,7 +35,7 @@ jobs:
           agent-instruction-litmus score --fixture root-agents-md --workspace /tmp/litmus-root
 
   public-install:
-    name: Public v0.2.2 install smoke
+    name: Immutable public release install smoke
     runs-on: ubuntu-latest
     steps:
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
@@ -53,3 +53,29 @@ jobs:
           agent-instruction-litmus fixtures | tee /tmp/fixtures.txt
           grep -q $'^root-agents-md\t' /tmp/fixtures.txt
           grep -q $'^gemini-memory-reload\t' /tmp/fixtures.txt
+
+  public-artifact-install:
+    name: Public v0.2.2 ${{ matrix.label }} install smoke
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - label: wheel
+            url: https://github.com/itscloud0/agent-instruction-litmus/releases/download/v0.2.2/agent_instruction_litmus-0.2.2-py3-none-any.whl
+          - label: sdist
+            url: https://github.com/itscloud0/agent-instruction-litmus/releases/download/v0.2.2/agent_instruction_litmus-0.2.2.tar.gz
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.12"
+      - name: Install published ${{ matrix.label }}
+        run: python -m pip install "${{ matrix.url }}"
+      - name: Verify installed release and fixtures
+        run: |
+          python - <<'PY'
+          from agent_instruction_litmus import __version__
+
+          assert __version__ == "0.2.2"
+          PY
+          agent-instruction-litmus fixtures | grep -q $'^root-agents-md\t'

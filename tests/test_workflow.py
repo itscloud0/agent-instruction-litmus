@@ -16,9 +16,22 @@ class WorkflowTests(unittest.TestCase):
                 "actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
                 "actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065",
                 "actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065",
+                "actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065",
             ],
         )
         self.assertTrue(all(re.fullmatch(r"actions/[^@]+@[0-9a-f]{40}", ref) for ref in refs))
+
+    def test_readme_leads_with_published_release_artifacts(self) -> None:
+        readme = Path(__file__).parents[1] / "README.md"
+        text = readme.read_text()
+
+        wheel = (
+            "agent_instruction_litmus-0.2.2-py3-none-any.whl"
+        )
+        sdist = "agent_instruction_litmus-0.2.2.tar.gz"
+        self.assertIn(wheel, text)
+        self.assertIn(sdist, text)
+        self.assertLess(text.index(wheel), text.index("git+https://"))
 
 
 if __name__ == "__main__":
